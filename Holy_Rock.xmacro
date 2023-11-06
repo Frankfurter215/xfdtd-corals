@@ -1,0 +1,58 @@
+// This code creates a cuboid and then a random series of spheres with random radius, defined by
+// a max radius of the radius1 variable. It then subtracts the spheres from the cuboid
+// creating a bunch of cavities.
+
+r1 = new Recipe();
+
+var Length = 10;
+var Width = 5;
+var Height = 5;
+
+for (var i = 0; i < 50; i++)
+{
+var s1 = new Sketch();
+var radius1 = Math.random();
+var x1 = Length*(Math.random() - 0.5);
+var y1 = Width*(Math.random() - 0.5);
+var z1 = Height*(Math.random());
+var origin1 = new Cartesian3D( x1, y1, z1 );
+var startPoint1 = new Cartesian3D( MathUtils.addFormula( x1, radius1 ), y1, z1 );
+var endPoint1 = new Cartesian3D( MathUtils.subFormula( x1, radius1 ), y1, z1 );
+var normal1 = new Cartesian3D( 0, 0, 1 ); // normal
+var arc1 = new Arc( origin1, startPoint1, endPoint1, normal1 );
+s1.addEdge( arc1 );
+
+// Draw a straight line to connect the arc's endpoints
+s1.addEdge( new Line( startPoint1, endPoint1 ) );
+var axisRoot1 = new CoordinateSystemPosition( origin1 );
+var axisDirection1 = new CoordinateSystemDirection( 1, 0, 0 );
+var rotate1 = new Revolve( s1, axisRoot1, axisDirection1 );  // Default rotation angle is 2* PI, so we don't need to specify it
+
+r1.append(rotate1);
+
+}
+
+// Creates the cuboid model
+var cube = new Model( new Recipe( new Cuboid( "10000 mm", "5000 mm" , "5000 mm " ) ) );
+
+
+
+var m1 = new Model();
+m1.setRecipe(r1);
+
+// This series of code subtracts the sphere model from the cuboid
+var tools = new Array;
+
+tools.push(m1);
+
+for( var i = 0 ; i < tools.length ; ++i )
+{
+	var b = new BooleanOperation;
+	b.setBooleanType( BooleanOperation.SubtractBooleanOperation );
+	b.setBlank( cube );
+	b.setTool( tools[ i ].clone() );
+
+	cube = new Model( new Recipe( b ) );
+}
+
+App.getActiveProject().getGeometryAssembly().append( cube );

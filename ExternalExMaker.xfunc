@@ -1,0 +1,9 @@
+function ExternalExMaker() //making external excitation and applying waveform to ExEx
+{
+ex = new PlaneWave();
+ex.name = "My Excitation";
+	App.getActiveProject().getExternalExcitationList().addExternalExcitation( ex );
+
+Output.println("external excitation created");
+return;
+}

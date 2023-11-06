@@ -1,0 +1,17 @@
+function createNewWavefront(freq, position, polarization) {
+    var wavefront = new Wavefront(); // Create a new wavefront object
+
+    // Set wavefront parameters
+    wavefront.setFrequency(freq);
+    wavefront.setPosition(position);
+    wavefront.setPolarization(polarization);
+
+    // Add the wavefront to the simulation
+    App.getActiveProject().getWavefrontList().addWavefront(wavefront);
+
+    // Update the simulation
+    App.getActiveProject().updateSimulation();
+
+    return;
+}
+

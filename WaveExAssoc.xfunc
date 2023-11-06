@@ -1,0 +1,14 @@
+function WaveExAssoc()
+{
+var wavedesign = App.getActiveProject().getWaveformList().getWaveform("My Waveform" );
+	if( null == wavedesign )
+	   {
+ 	    Output.println( "\"Waveform\" shape was not found, could not associate with external excitation." );
+	   }
+	else
+	   {
+	    App.getActiveProject().getExternalExcitationList().getExternalExcitation( "My Excitation" ).setWaveform(wavedesign);
+	    Output.println("waveform associated with External Excitation");
+	   }
+return;
+}

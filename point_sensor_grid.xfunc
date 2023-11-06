@@ -1,0 +1,55 @@
+function GridPointSensorMaker(x, nRows, nCols)
+{
+// Create a sensor definition and attach it to a planar sensor
+var dataDefinition = new PointSensorDataDefinition();
+dataDefinition.name = "E Field Sampling";
+dataDefinition.setCollectEFieldsVsTime( true );
+
+var timeRange = dataDefinition.getSampledTimeRange(); // returns reference to the internal SampledTimeRange object.
+//timeRange.setStartTimeSeconds( "0 * timestep" ); // timestep is a parameter we reference here - it is automatically set
+timeRange.setStartAtBeginningOfSimulation( true );
+//timeRange.setFinishTimeSeconds( "400 ns" ); // 
+timeRange.setFinishAtEndOfSimulation( true );
+timeRange.setDeltaTimeSeconds( "1 * timestep" );
+
+// Add our PointSensorDataDefinition to the project's list.
+var sensorDataDefinitionList = App.getActiveProject().getSensorDataDefinitionList();
+var dataDefinitionInList = sensorDataDefinitionList.addSensorDataDefinition( dataDefinition );
+
+//getting grid components
+var upper = App.getActiveProject().getGrid().getBounds().getUpper();
+var lower = App.getActiveProject().getGrid().getBounds().getLower();
+var diff = MathUtils.sub(upper, lower);
+var minY = MathUtils.evaluate(lower.y);
+var minZ = MathUtils.evaluate(lower.z);
+var totY = diff.y;
+var totZ = diff.z;
+var pbase = "pointSense";
+// Now let's define the geometry for this sensor.
+for (i=0; i<nRows; i++)
+	{
+	for (j=0; j<nCols; j++)
+		{
+		// Create a surface sensor
+		var p = new PointSensor();
+		p.name = pbase+i+j;
+		p.setDataDefinition( dataDefinitionInList );
+
+		var ything = i*totY/nRows;
+		var zthing = j*totZ/nCols;
+		var yval = minY + ything;
+		var zval = minZ + zthing;
+//		Output.println(typeof ything);
+	//	Output.println(typeof yval);
+		var geom = p.getGeometry();
+		var position = new CoordinateSystemPosition( x,yval,zval ); // A point on the plane.
+		//var position = new CoordinateSystemPosition( 0, 0 + i/nRows , 0 + j/nCols ); // A point on the plane.
+		geom.setPosition( position );
+
+		var nearFieldSensorList = App.getActiveProject().getNearFieldSensorList();
+		nearFieldSensorList.addNearFieldSensor(p);
+		}
+	}
+
+return
+}

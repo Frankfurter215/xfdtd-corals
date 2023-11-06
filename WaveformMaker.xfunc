@@ -1,0 +1,16 @@
+function makeWaveform()
+{
+
+	wave = new Waveform();
+	wave.name = "My Waveform";
+//The shape I'm starting with is a gaussian derivative cus its the first function I found. In theory, for any of the other shapes you should just replace GaussianDerivative with Sinusoid for example in the function below
+    var shape = new GaussianDerivativeWaveformShape( "My Shape" );
+    shape.pulseWidthFormula = 5e-9;
+    
+    wave.setWaveformShape( shape );
+	App.getActiveProject().getWaveformList().addWaveform( wave );
+
+Output.println("Waveform Created");
+
+    return;
+}

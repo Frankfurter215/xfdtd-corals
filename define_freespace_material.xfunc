@@ -1,0 +1,45 @@
+function createRegoLayerMaterial()    // arg1: relative permittivity, arg2: layer index
+{
+
+    m = new Material();                                            //  Create a new material
+	var mname= String("Free Space");
+    m.name = mname;                                        //  Material contains all base class functionality from DataSource / Selectable / etc...
+
+    eiFreeSpace = new ElectricFreespace();                            //  Create new ElectricIsotropic for material's electric 
+
+    miFreeSpace = new MagneticFreespace();                            //  Create new MagneticIsotropic for material's magnetic default property 
+    
+    physmat = new PhysicalMaterial();
+    physmat.setElectricProperties( eiFreeSpace );                    //  Set default ElectricProperty
+    physmat.setMagneticProperties( miFreeSpace );                    //  Set default MagneticProperty
+    m.setDetails( physmat );  
+    
+    physparams = new PhysicalParameters();
+    physparams.setDensity( 0 );
+    m.setPhysicalDetails( physparams );
+
+    // Make the regolith material appear gray.
+    var substrateBodyAppearance = m.getAppearance();
+    var substrateFaceAppearance = substrateBodyAppearance.getFaceAppearance();  // The "face" appearance is the color/style associated with the surface of geometry objects
+	var R = Number(200);
+	var G = R;
+	var B = R;
+    substrateFaceAppearance.setColor( new Color( R,G,B, 255 ) );  // Set the surface color to green. (255 is the maximum intensity, these are in order R,G,B,A).
+    substrateFaceAppearance.setSpecularColor( new Color( 100, 100, 100 ) ); // make the lighting highlights a little less bright than the default bright white color.
+ 
+    // Check for preexisting material named "regolayer"
+    var regolayer = App.getActiveProject().getMaterialList().getMaterial( m.name ); // Using m.name, this is defined as "Substrate" above.
+
+    if( null != regolayer )
+    {
+        // In this case we will remove the old material from the list.
+        // Alternatively, we could replace the existing material's parameters, or rename
+        // the new material we are going to add..
+        App.getActiveProject().getMaterialList().removeMaterial( m.name );
+    }
+
+    // Add the material to the current project.
+    App.getActiveProject().getMaterialList().addMaterial( m );
+
+    return;    
+}

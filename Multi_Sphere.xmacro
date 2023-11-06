@@ -1,0 +1,47 @@
+// This code creates any number of sphere models in XFdtd with a random radius and position
+// The spheres are compiled into a single model
+// The random assortment of Spheres will be created within a box of 
+// Length, Width, and Height defined in the code. This box is centered
+// on the origin
+
+
+r1 = new Recipe();
+
+var Length = 10;
+var Width = 5;
+var Height = 5;
+
+for (var i = 0; i < 50; i++)
+{
+var s1 = new Sketch();
+var radius1 = Math.random();
+var x1 = Length*Math.random();
+var y1 = Width*Math.random();
+var z1 = Height*Math.random();
+var origin1 = new Cartesian3D( x1, y1, z1 );
+var startPoint1 = new Cartesian3D( MathUtils.addFormula( x1, radius1 ), y1, z1 );
+var endPoint1 = new Cartesian3D( MathUtils.subFormula( x1, radius1 ), y1, z1 );
+var normal1 = new Cartesian3D( 0, 0, 1 ); // normal
+var arc1 = new Arc( origin1, startPoint1, endPoint1, normal1 );
+s1.addEdge( arc1 );
+
+// Draw a straight line to connect the arc's endpoints
+s1.addEdge( new Line( startPoint1, endPoint1 ) );
+var axisRoot1 = new CoordinateSystemPosition( origin1 );
+var axisDirection1 = new CoordinateSystemDirection( 1, 0, 0 );
+var rotate1 = new Revolve( s1, axisRoot1, axisDirection1 );  // Default rotation angle is 2* PI, so we don't need to specify it
+
+r1.append(rotate1);
+
+}
+
+
+
+
+
+var m1 = new Model();
+m1.setRecipe(r1);
+
+m1.getCoordinateSystem().translate( Cartesian3D( Length*(Math.random() - 0.5), Width*(Math.random() - 0.5), Height*(Math.random() - 0.5) ) );
+
+var objectInProject = App.getActiveProject().getGeometryAssembly().append( m1 );

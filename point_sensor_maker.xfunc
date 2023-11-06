@@ -1,0 +1,33 @@
+function OnePointSensorMaker(x,y,z)
+{
+// Create a sensor definition and attach it to a planar sensor
+var dataDefinition = new PointSensorDataDefinition();
+dataDefinition.name = "E Field Sampling";
+dataDefinition.setCollectEFieldsVsTime( true );
+
+var timeRange = dataDefinition.getSampledTimeRange(); // returns reference to the internal SampledTimeRange object.
+//timeRange.setStartTimeSeconds( "0 * timestep" ); // timestep is a parameter we reference here - it is automatically set
+timeRange.setStartAtBeginningOfSimulation( true );
+//timeRange.setFinishTimeSeconds( "400 ns" ); // 
+timeRange.setFinishAtEndOfSimulation( true );
+timeRange.setDeltaTimeSeconds( "1 * timestep" );
+
+// Add our PointSensorDataDefinition to the project's list.
+var sensorDataDefinitionList = App.getActiveProject().getSensorDataDefinitionList();
+var dataDefinitionInList = sensorDataDefinitionList.addSensorDataDefinition( dataDefinition );
+
+// Create a surface sensor
+var p = new PointSensor();
+p.name = "psense";
+p.setDataDefinition( dataDefinitionInList );
+
+// Now let's define the geometry for this sensor.
+var geom = p.getGeometry();
+var position = new CoordinateSystemPosition( x,y,z ); // A point on the plane.
+geom.setPosition( position );
+
+var nearFieldSensorList = App.getActiveProject().getNearFieldSensorList();
+nearFieldSensorList.addNearFieldSensor( p );
+
+return
+}

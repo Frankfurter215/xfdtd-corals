@@ -1,0 +1,101 @@
+// This code creates a cuboid and then a random series of spheres with random radius, defined by
+// a max radius of the radius1 variable. It then subtracts the spheres from the cuboid
+// creating a bunch of cavities. This process continues until the actual porosity of the 
+// geometry is within the threshold, which I have set as within 0.1% of the defined porosity
+
+var time = Time();
+time.start();
+
+r1 = new Recipe();
+
+var Length = 100;
+var Width = 100;
+var Height = 100;
+var Volume = Length*Width*Height;
+var Porosity = 0.01*Volume;
+var current_Porosity = 0.0;
+var pore_tolerance = 0.01
+
+//for (var i = 0; i < 5000; i++)
+while (current_Porosity <= Porosity)
+{
+var s1 = new Sketch();
+var radius1 = Math.random();
+var pore_volume = (4/3)*radius1*radius1*radius1*Math.PI;
+//var radius1 = 1;
+while (current_Porosity + pore_volume >= (1 + pore_tolerance)*Porosity)
+{
+radius1 = Math.random();
+}
+current_Porosity = current_Porosity + (4/3)*radius1*radius1*radius1*Math.PI;
+
+Output.println( "current_Porosity = " + current_Porosity );
+Output.println( "Porosity = " + Porosity );
+
+var x1 = Length*(Math.random() - 0.5);
+var y1 = Width*(Math.random() - 0.5);
+var z1 = Height*(Math.random());
+var origin1 = new Cartesian3D( x1, y1, z1 );
+var startPoint1 = new Cartesian3D( MathUtils.addFormula( x1, radius1 ), y1, z1 );
+var endPoint1 = new Cartesian3D( MathUtils.subFormula( x1, radius1 ), y1, z1 );
+var normal1 = new Cartesian3D( 0, 0, 1 ); // normal
+var arc1 = new Arc( origin1, startPoint1, endPoint1, normal1 );
+s1.addEdge( arc1 );
+
+// Draw a straight line to connect the arc's endpoints
+s1.addEdge( new Line( startPoint1, endPoint1 ) );
+var axisRoot1 = new CoordinateSystemPosition( origin1 );
+var axisDirection1 = new CoordinateSystemDirection( 1, 0, 0 );
+var rotate1 = new Revolve( s1, axisRoot1, axisDirection1 );  // Default rotation angle is 2* PI, so we don't need to specify it
+
+r1.append(rotate1);
+
+}
+Output.println("Finished creating the hole recipe");
+
+var m1 = new Model();
+m1.setRecipe(r1);
+
+// This next bit of code creates and assigns the material to the model of spheres
+Output.println("Creating the hole material");
+createRegoLayerMaterial();
+
+// bring in a material for use, needs to be predefined.
+var regoMaterial = App.getActiveProject().getMaterialList().getMaterial( "Free Space" );
+if( null == regoMaterial )
+   {
+     Output.println( "\"Regolayer\" material was not found, could not associate with layer." );
+   }
+else
+   {
+      App.getActiveProject().setMaterial( m1, regoMaterial );
+   }
+
+
+
+// Creates the cuboid model
+var cube = new Model( new Recipe( new Cuboid( Length, Width , Height ) ) );
+
+
+// This series of code subtracts the sphere model from the cuboid
+//var tools = new Array;
+
+//tools.push(m1);
+
+//for( var i = 0 ; i < tools.length ; ++i )
+//{
+	//var b = new BooleanOperation;
+	//b.setBooleanType( BooleanOperation.SubtractBooleanOperation );
+	//b.setBlank( cube );
+	//b.setTool( tools[ i ].clone() );
+
+	//cube = new Model( new Recipe( b ) );
+//}
+
+m1.getCoordinateSystem().translate( Cartesian3D( 0, 0, -Height/2 ) );
+cube.getCoordinateSystem().translate( Cartesian3D( 0, 0, -Height/2 ) );
+App.getActiveProject().getGeometryAssembly().append( m1 );
+App.getActiveProject().getGeometryAssembly().append( cube );
+
+var TimeElapsed = time.elapsed();
+Output.println("Time Elapsed is: " + TimeElapsed);
